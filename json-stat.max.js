@@ -1,4 +1,4 @@
-/* 
+/*
 
 JSON-stat Javascript Toolkit v. 0.6.2
 http://json-stat.org
@@ -6,28 +6,28 @@ https://github.com/badosa/JSON-stat
 
 Copyright 2014 Xavier Badosa (http://xavierbadosa.com)
 
-Licensed under the Apache License, Version 2.0 (the "License"); 
-you may not use this file except in compliance with the License. 
-You may obtain a copy of the License at 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0 
+	http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express 
-or implied. See the License for the specific language governing 
-permissions and limitations under the License. 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+or implied. See the License for the specific language governing
+permissions and limitations under the License.
 
 */
 
 var JSONstat = JSONstat || {};
 
-JSONstat.version="0.6.2";
+JSONstat.version="0.6.3";
 
 function JSONstat(resp,f){
-	if(window===this){
+	// if(window===this){
 		return new JSONstat.jsonstat(resp,f);
-	}
+	// }
 }
 
 (function(){
@@ -35,26 +35,27 @@ function JSONstat(resp,f){
 	function isArray(o) {
 		return Object.prototype.toString.call(o) === "[object Array]";
 	}
+
 	function jsonstat(o,f){
 		var xhr=function(uri, func){
 			var json, async=(func!==false);
-			if(window.XDomainRequest && /^(http(s)?:)?\/\//.test(uri)){ //IE9 cross-domain (assuming access to same domain won't be specified using an absolute address). Not integrated because it'll will be removed someday...
-				if(!async){ //JSONstat: IE9 sync cross-domain request? Sorry, not supported (only async if IE9 and cross-domain).
-					return;
-				}
-				var req=new XDomainRequest();
-				/*
-				req.onerror=function(){
-					return;  //JSONstat: Can't access "+uri;
-				}
-				*/
-				req.onload=function(){
-					json=JSON.parse(req.responseText);
-					func.call(JSONstat(json));
-				}
-				req.open("GET", uri);
-				req.send();
-			}else{ //Standard xhr
+			// if(window.XDomainRequest && /^(http(s)?:)?\/\//.test(uri)){ //IE9 cross-domain (assuming access to same domain won't be specified using an absolute address). Not integrated because it'll will be removed someday...
+				// if(!async){ //JSONstat: IE9 sync cross-domain request? Sorry, not supported (only async if IE9 and cross-domain).
+					// return;
+				// }
+				// var req=new XDomainRequest();
+				// /*
+				// req.onerror=function(){
+					// return;  //JSONstat: Can't access "+uri;
+				// }
+				// */
+				// req.onload=function(){
+					// json=JSON.parse(req.responseText);
+					// func.call(JSONstat(json));
+				// }
+				// req.open("GET", uri);
+				// req.send();
+			// } else { //Standard xhr
 				var req=new XMLHttpRequest();
 				req.onreadystatechange=function(){
 					if(req.readyState===4){
@@ -70,7 +71,7 @@ function JSONstat(resp,f){
 				if(!async){
 					return json;
 				}
-			}
+			// }
 		}
 		//sparse cube (value or status)
 		//If only one value/status is provided it means same for all (if more than one, then missing values/statuses are nulled).
@@ -166,11 +167,11 @@ function JSONstat(resp,f){
 
 				this.value=normalize(ot.value,dsize);
 				this.status=(!(ot.hasOwnProperty("status"))) ? null : normalize(ot.status,dsize);
-				
+
 				// if dimensions are defined, id and size arrays are required and must have equal length
 				if (ot.hasOwnProperty("dimension")){
 					if (
-						!(isArray(ot.dimension.id)) || 
+						!(isArray(ot.dimension.id)) ||
 						!(isArray(ot.dimension.size)) ||
 						ot.dimension.id.length!=ot.dimension.size.length
 						){
@@ -185,7 +186,7 @@ function JSONstat(resp,f){
 					//If only one category, no need of index according to the spec
 					//This actually will recreate an index even if there are more than one category and no index is provided
 					//but because there's no guarantee that properties are retrieved in a particular order (even though it worked in Ch,FF,IE,Sa,Op)
-					//(Main problem in fact is that you don't have to WRITE them in a particular order) the original order of categories could 
+					//(Main problem in fact is that you don't have to WRITE them in a particular order) the original order of categories could
 					//theoretically be changed. That's why the procedure will only be valid when there's only one category.
 					//Note: If toTable() is removed it would make more sense to move this loop inside Dimension() as it is not needed for Data().
 					for(var d=0, len=this.length; d<len; d++){
@@ -250,7 +251,7 @@ function JSONstat(resp,f){
 				this.type="cat";
 
 				//0.5.0 changed. It was autoreference: id. And length was 0 always
-				this.id=par; 
+				this.id=par;
 				this.length=(par===null) ? 0 : par.length;
 
 				this.index=o.index;
@@ -410,14 +411,14 @@ function JSONstat(resp,f){
 		//Data By Position in original array
 		if(typeof e==="number"){
 			var num=this.value[e];
-			return (typeof num!=="undefined") ? 
-				{"value" : num, "status": 
-					(this.status) ? 
+			return (typeof num!=="undefined") ?
+				{"value" : num, "status":
+					(this.status) ?
 					this.status[e]
 					:
 					null
-				} 
-				: 
+				}
+				:
 				null
 			; /* removed in 0.5.2.2 length: 1 {"value" : undefined, "status": undefined, "length" : 0};*/
 		}
@@ -488,7 +489,7 @@ function JSONstat(resp,f){
 		return this.Data(pos);
 	}
 
-	/* 
+	/*
 		Transformation method: output in DataTable format (array or object)
 		Setup: opts={status: false, slabel: "Status", vlabel: "Value", field: "label", content: "label", type: "array"} (type values: "array" / "object" / "arrobj")
 
@@ -508,10 +509,10 @@ function JSONstat(resp,f){
 		;
 
 		if(typeof func==="function"){
-			var 
+			var
 				totbl=this.toTable(opts),
 				ret=[],
-				i=(opts.type!=='array') ? 0 : 1 //first row is header in array and object 
+				i=(opts.type!=='array') ? 0 : 1 //first row is header in array and object
 			;
 
 			if(opts.type!=='object'){
@@ -541,7 +542,7 @@ function JSONstat(resp,f){
 
 		//For example, as D3 input
 		if(opts.type==="arrobj"){
-			var 
+			var
 				totbl=this.toTable({field: "id", content: opts.content, status: opts.status}),// At the moment, options besides "type" are not passed
 				tbl=[],
 				head=totbl.shift()
@@ -561,7 +562,7 @@ function JSONstat(resp,f){
 
 		if(opts.type==="object"){
 			//Object
-			var 
+			var
 				valuetype=(typeof this.value[0]==="number" || this.value[0]===null) ? "number" : "string", //cell type inferred from first cell. If null, number is assumed (naif)
 				addCol=function(dimid,dimlabel){
 					var label=(useid && dimid) || dimlabel || dimid; //if userid then id; else label; then id if not label
